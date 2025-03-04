@@ -112,11 +112,17 @@ That should be it. The TLD for the domain should be changed to whatever you spec
 
 ## Create a New Port Group  
 1. Navigate to **Networking** > **Port Groups** > **Add Port Group**.  
+![Add-Port-Group Image](assets/images/goad/esxi-add-port-group.png)
+
 2. Assign a name and select the appropriate virtual switch.  
+![Add-Port-Group2 Image](assets/images/goad/esxi-add-port-group2.png)
+
 
 ## Configure Ubuntu Network Adapter  
 1. Shut down the **Ubuntu host**.  
-2. Add a **second network adapter** and connect it to the new port group.  
+2. Add a **second network adapter** and connect it to the new port group. 
+![Add-network-adapter Image](assets/images/goad/add-network-adapter.png)
+
 3. Restart the **Ubuntu host**.  
 4. Assign a **static IP** within the GOAD lab network range (**without a gateway**).  
  
@@ -303,6 +309,7 @@ Disable-NetAdapterBinding -Name "Ethernet1" -ComponentID ms_tcpip6
 Disable network card not associated with GOAD (Ethernet0)
 
 Manually Promoted the DC2 as Domain controller of child domain. (Get Domain Creds from /GOAD/ad/GOAD/data/config.json)
+![promote-dc2 Image](assets/images/goad/promote-dc2-child-domain.png)
 
 # Issue 2 - MSSQL
 During the SQL Database creation, there were errors. I followed some advice online, and uninstalled anything related to MS SQL and reboot the server. Rerun of script installed correctly.
