@@ -10,7 +10,7 @@ In this scenario, we have access to a Windows 10 host where an AppLocker policy 
 
 The below output shows an example of the AppLocker Policy. 
 **Command to list AppLocker Policy:**
-```PowerShell
+```bash
 Get-AppLockerPolicy -Effective | Select -ExpandProperty RuleCollections
 ```
 
@@ -42,8 +42,8 @@ We will download a C# source file to the host and create a companion file contai
 The below image shows downloading the **uncompiled C#** program **exec.cs** from GitHub.
 ![Downloading-exec-source](assets/images/windowsbreakout/download-exec.cs.png)
 
-**Exec.cs Code:**
-```C#
+**Exec.cs CSharp Code:**
+```c
 using System;
 using System.Configuration.Install;
 using System.Runtime.InteropServices;
