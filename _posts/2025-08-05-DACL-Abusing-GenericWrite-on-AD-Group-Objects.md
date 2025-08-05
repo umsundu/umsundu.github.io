@@ -61,15 +61,15 @@ python3 bloodhound.py -u jaremy.rykker -p 'Winter123!' -d north.sevenkingdoms.lo
 In **BloodHound**, we search for the name of our **compromised account**. Once found, we click on the **user** and view the **Node Info** to get a wealth of information about our user. We scroll down to **Outbound Object Control**. The **Outbound Object Control Set** will show the number of objects that the current object **can control** via **ACL-based permissions**, if any.
 
 In the image below, we can see that **jaremy.rykker** has a single **Outbound Object Control Set**. When clicking on the entry within BloodHound, we can see that **jaremy.rykker** has **GenericWrite** permissions on **TestingNestingAdministratorsGroup**.
-![BH-dacl-gw-on-group](assets\images\dacl-gw-on-group\DACLS-genericwrite2-on-group.png)
+![BH-dacl-gw-on-group](assets/images/dacl-gw-on-group/DACLS-genericwrite2-on-group.png)
 
 Another view to see any **attack paths** from the user **jaremy.rykker** is to click on **Reachable High Value Targets**, if any, from the **Node Info**. This presents a **graph** outlining the **attack path** and indicates that the path uses **GenericWrite** from **jaremy.rykker** to **TestingNestingAdministratorsGroup**, which is already a member of the built-in **Administrators** group.
 
 The image below shows the **attack path** being laid out by **BloodHound** when selecting **Reachable High Value Targets**.
-![BH-dacl-gw-on-group](assets\images\dacl-gw-on-group\genericwrite-group-reachable-high-value-targets.png)
+![BH-dacl-gw-on-group](assets/images/dacl-gw-on-group/genericwrite-group-reachable-high-value-targets.png)
 
 If we take a look at the **TestingNestingAdministratorsGroup** membership, we can see that it is a member of the **Administrators** group.
-![BH-dacl-gw-on-group](assets\images\dacl-gw-on-group\TestingNestingGroupMembership.png)
+![BH-dacl-gw-on-group](assets/images/dacl-gw-on-group/TestingNestingGroupMembership.png)
 
 ## Exploiting GenericWrite on Group Add User to Group
 
@@ -82,14 +82,14 @@ There are **multiple methods** to achieve this. We will explore **three separate
 The **net** utility is commonly used for administering **Samba** and **CIFS/SMB** clients. In this context, we can leverage it to **add our user to the target group**, taking advantage of the misconfigured permissions.
 
 The image below shows an **ldapsearch** query used to list the current **memberships** of the target group **TestingNestingAdministratorsGroup**. As seen in the output, the **group membership is currently empty**
-![dacl-group-query](assets\images\dacl-gw-on-group\dacls-gw-group-checking-group-membership-empty.png)
+![dacl-group-query](assets/images/dacl-gw-on-group/dacls-gw-group-checking-group-membership-empty.png)
 
 **Net Rpc Command:**
 ```bash
 net rpc group addmem "Target_Group_Name_To_Add_Account" Target_Compromised_Account -U FQDN/username%'Password' -S DomainControlelr_HostName_or_IP_address
 ```
 The below image shows the successful execution of the **net** utility, which adds the user **jaremy.rykker** to the group **TestingNestingAdministratorsGroup**. If the command is successful, you will not receive any output. 
-![dacl-group-net-util](assets\images\dacl-gw-on-group\dacls-gw-group-net-utility.png)
+![dacl-group-net-util](assets/images/dacl-gw-on-group/dacls-gw-group-net-utility.png)
 
 Querying the **group membership** as we did before using **ldapsearch** now shows that our user **jaremy.rykker** is a **member** of the **TestingNestingAdministratorsGroup**. See image below.
 
@@ -97,7 +97,7 @@ Querying the **group membership** as we did before using **ldapsearch** now show
 ```bash
 ldapsearch -x -H ldap://192.168.1.154 -D 'jaremy.rykker@north.sevenkingdoms.local' -w 'Winter123!' -b "DC=north,DC=sevenkingdoms,DC=LOCAL" "(sAMAccountName=TestingNestingAdministratorsGroup)" member 
 ```
-![dacl-group-query](assets\images\dacl-gw-on-group\dacls-gw-group-checking-group-membership-has-member.png)
+![dacl-group-query](assets/images/dacl-gw-on-group/dacls-gw-group-checking-group-membership-has-member.png)
 
 
 ## Method 2 - Add Group Member Using Ldap_shell
@@ -113,7 +113,7 @@ Run **ldap_shell** and **authenticate** to the domain controller.
 ```bash
 ldap_shell 'domain/CompromisedUserName:Password' -dc-ip DC_IP
 ```
-![dacl-ldapshell](assets\images\dacl-gw-on-group\dacl-ldap_shell1.png)
+![dacl-ldapshell](assets/images/dacl-gw-on-group/dacl-ldap_shell1.png)
 
 ### Add User to Group Using Ldap_shell
 
@@ -121,7 +121,7 @@ Run the **add_user_to_group** command with the appropriate parameters.
 ```bash
 add_user_to_group user targetgroup
 ```
-![dacl-ldapshell](assets\images\dacl-gw-on-group\dacl-ldap_shell2.png)
+![dacl-ldapshell](assets/images/dacl-gw-on-group/dacl-ldap_shell2.png)
 
 ### Verify Group Membership Using Ldap_shell
 
@@ -132,7 +132,7 @@ We can **verify** our user is now a **group member** by using the ldap_shell **g
 get_group_users TestingNestingAdministratorsGroup
 ```
 
-![dacl-ldapshell](assets\images\dacl-gw-on-group\dacl-ldap_shell3.png)
+![dacl-ldapshell](assets/images/dacl-gw-on-group/dacl-ldap_shell3.png)
 
 ## Method 3 - Passing-the-Hash
 
@@ -144,7 +144,7 @@ In order to use **pth**, we obviously need a **hash**. Since we have a **comprom
 ```python
 python3 -c "import hashlib; pwd='ThePassword'; print(f'00000000000000000000000000000000:{hashlib.new(\"md4\", pwd.encode(\"utf-16le\")).hexdigest()}')"
 ```
-![dacl-pth](assets\images\dacl-gw-on-group\dacl-pth-1.png)
+![dacl-pth](assets/images/dacl-gw-on-group/dacl-pth-1.png)
 
 ### Add User to Group with Pth-Net
 
@@ -154,7 +154,7 @@ Now that we have a **NT hash** of the known password, we can use **pth-net** com
 ```bash
 pth-net rpc group addmem TargetGroup UserToAdd -U domain/UserName%00000000000000000000000000000000:NTHash -S DomainController
 ```
-![dacl-pth](assets\images\dacl-gw-on-group\dacl-pth-2.png)
+![dacl-pth](assets/images/dacl-gw-on-group/dacl-pth-2.png)
 
 ### Verify Group Membership with Ldapsearch
 
@@ -162,7 +162,7 @@ pth-net rpc group addmem TargetGroup UserToAdd -U domain/UserName%00000000000000
 ```bash
 ldapsearch -x -H ldap://192.168.1.154 -D 'jaremy.rykker@north.sevenkingdoms.local' -w 'Winter123!' -b "DC=north,DC=sevenkingdoms,DC=LOCAL" "(sAMAccountName=TestingNestingAdministratorsGroup)" member 
 ```
-![dacl-pth](assets\images\dacl-gw-on-group\dacl-pth-3.png)
+![dacl-pth](assets/images/dacl-gw-on-group/dacl-pth-3.png)
 
 ## Dump Hashes and Lsa Secrets Using Secretsdump.py
 
@@ -172,6 +172,6 @@ Now that our user is a member of a nested administrators group, we can unleash t
 ```bash
 python3 secretsdump.py north/jaremy.rykker@192.168.1.154
 ```
-![dacl-pth](assets\images\dacl-gw-on-group\dacl-secretsdump.png)
+![dacl-pth](assets/images/dacl-gw-on-group/dacl-secretsdump.png)
 
 **And that's it! Hopefully, if you were unsure how to approach this attack path, this blog has filled in the gaps. Next time you come across this type of misconfiguration, you’ll know exactly how to own it.**

