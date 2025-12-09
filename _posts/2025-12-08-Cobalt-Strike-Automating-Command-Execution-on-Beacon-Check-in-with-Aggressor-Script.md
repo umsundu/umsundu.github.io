@@ -239,7 +239,7 @@ The below shows the beacon checking-in for the first time and the automated scri
 ![CS-aggressor-automation-script-execution](assets/images/CS-aggressor-automation-script/cs-aggressor-automation-script-exec.gif)
 
 
-
+**And that's it, beacon automation configured and working. Your C2 infrastructure now handles initial reconnaissance automatically, giving you immediate situational awareness without manual intervention. Set it and forget it... but not really ;).**
 
 
 
