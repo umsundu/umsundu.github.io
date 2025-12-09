@@ -50,10 +50,10 @@ Before building our automation, it's important to understand the three types of 
 ### 1. Built-in Beacon Commands (Generally OPSEC Safe)
 These are native Cobalt Strike commands that use dedicated **b*** functions:
 ```perl
-bps($bid);        # List processes - would noramlly be typed into console as ps.
-bpwd($bid);       # Print working directory - would noramlly be typed into console as pwd.
-bcd($bid, "C:\\");  # Change directory - would noramlly be typed into console as cd.
-bkill($bid, 1234);  # Kill process by PID - would noramlly be typed into console as kill.
+bps($bid);        # List processes - would normally be typed into console as ps.
+bpwd($bid);       # Print working directory - would normally be typed into console as pwd.
+bcd($bid, "C:\\");  # Change directory - would normally be typed into console as cd.
+bkill($bid, 1234);  # Kill process by PID - would normally be typed into console as kill.
 ```
 
 ### 2. Shell Commands (OPSEC Unsafe)
@@ -109,9 +109,6 @@ Now that we have a better understanding of Aggressor Scripts and the different c
 
 **Note:** BOF .cna files must be loaded before your automation script, otherwise **fireAlias()** calls will fail silently because the aliases won't exist.
 
-Verify successful loading by checking the Script Console for any errors
-Test BOFs manually in a beacon before automating them
-
 ### Complete Automation Script
 Grab the code below and save as check-in-automated-tasks.cna
 
@@ -155,7 +152,7 @@ println("[AUTOMATION] Workflow started for beacon $bid"); # Prints to Script Con
     
     sleep(2000);
     
-    # Enumerate Environment Varables
+    # Enumerate Environment Variables
     println("[AUTOMATION] Executing env BOF...");
     blog($bid, "[*] Running env BOF...");
     fireAlias($bid, "env");
