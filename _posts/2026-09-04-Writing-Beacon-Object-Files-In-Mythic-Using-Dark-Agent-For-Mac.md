@@ -1,8 +1,8 @@
 ---
-title: "Writing Beacon Object Files for Mythic Dark Agent"
+title: "Writing Beacon Object Files In Mythic Using Dark Agent For MacOS"
 date: 2026-09-04
-categories: [Red Team, Command and Control, Post-Exploitation, Defense Evasion, Mythic, Dark Agent, Beacon Object Files, BOFs]
-tags: [Mythic, Dark Agent, Beacon Object Files, BOFs, Post-Exploitation, Defense Evasion, OpSec]
+categories: [Red Team, Command and Control, Post-Exploitation, Defense Evasion, Mythic, Dark Agent, Beacon Object Files, BOFs, MacOS]
+tags: [Mythic, Dark Agent, MacOS, Beacon Object Files, BOFs, Post-Exploitation, Defense Evasion, OpSec]
 ---
 
 ## Acknowledgements and Resources
@@ -52,7 +52,7 @@ Because the **loader** only applies **.rela.text** **relocations**, a **static a
 // WRONG - the pointers stay NULL at runtime
 static const char *dirs[] = { "/.ssh", "/Documents", "/Desktop", NULL };
 ```
-The array lives in `**.data**`, its **pointer initializers** are never **relocated**, and the **loop** that walks it never runs. Instead, embed your **strings inline** as **fixed-size character arrays**:
+The array lives in `.data`, its **pointer initializers** are never **relocated**, and the **loop** that walks it never runs. Instead, embed your **strings inline** as **fixed-size character arrays**:
 ```c
 // RIGHT - the strings live inline, no pointer relocations needed
 typedef struct {
