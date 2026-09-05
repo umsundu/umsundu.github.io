@@ -219,7 +219,7 @@ bof_load hello output/hello.o
 bof_exec hello
 bof_exec hello one two three
 ```
-The first `bof_exec` prints `argc = 1` (just the **NULL terminator**). The second prints `argc = 4` and lists each **argument**. If that output appears, the entire **pipeline** works: the **toolchain**, the **loader**, and the **BOF**.
+The first `bof_exec` prints `argc = 1` representing the single NULL terminator in the argument array. The second prints `argc = 4` and lists each **argument**. If that output appears, the entire **pipeline** works: the **toolchain**, the **loader**, and the **BOF**.
 
 **A Note on Dark-Agent Argument Conventions:** Unlike standard C semantics where argc counts only the active arguments and argv[argc] is NULL, Dark-Agent's loader includes the trailing NULL terminator itself in the argc count. For example, running **bof_exec hello one two three** results in the following layout:
 ```plaintext
