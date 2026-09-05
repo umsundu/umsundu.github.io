@@ -14,11 +14,11 @@ Big shout out to **Nicholas Romanowski** and the development team at **ServiceNo
    
 - **macOS SDK:** Required for native Apple libc struct layouts and headers (`MacOSX.sdk`).
 
-**A Note on the Process:** Real talk: AI was heavily leaned on during the research and troubleshooting phase for this post. Bouncing compilation errors, ABI mismatches, and loader constraints off a model saves hours of painful guesswork when building custom operator tooling from scratch. As much as I woudl love to be, I'm not a bad lad that can just bang this stuff out on a Friday night. 
+**A Note on the Process:** Real talk: AI was heavily leaned on during the research and troubleshooting phase for this post. Bouncing compilation errors, ABI mismatches, and loader constraints off a model saves hours of painful guesswork when building custom operator tooling from scratch. As much as I would love to be, I'm not a bad lad that can just bang this stuff out on a Friday night. 
 
 ## Introduction
 
-A **Beacon Object File (BOF)** is a small compiled program that a **C2 agent** loads and runs entirely in **memory**. It never touches **disk**, it never spawns a **process**, and it gives you a way to ship custom capability to an **implant** after it has already been deployed. **Cobalt Strike** made BOFs famous on **Windows**, but the same idea works on **macOS** through **Dark-Agent**, a **Mythic payload type** for **Apple Silicon**.
+A **Beacon Object File (BOF)** is a small, unlinked object file containing code and data that a **C2 agent** loads and runs entirely in **memory**. It never touches **disk**, it never spawns a **process**, and it gives you a way to ship custom capability to an **implant** after it has already been deployed. **Cobalt Strike** made BOFs famous on **Windows**, but the same idea works on **macOS** through **Dark-Agent**, a **Mythic payload type** for **Apple Silicon**.
 
 The catch is that a **BOF** is not a normal program. It is a raw **object file** that gets linked at runtime against the agent's own process, and that imposes a strict set of rules on how you write it. Get the rules right and a **BOF** is a tiny, fast, in-memory tool. Get them wrong and you will crash the **beacon**, or worse, write a **BOF** that silently does nothing.
 
@@ -220,6 +220,17 @@ bof_exec hello
 bof_exec hello one two three
 ```
 The first `bof_exec` prints `argc = 1` (just the **NULL terminator**). The second prints `argc = 4` and lists each **argument**. If that output appears, the entire **pipeline** works: the **toolchain**, the **loader**, and the **BOF**.
+
+**A Note on Dark-Agent Argument Conventions:** Unlike standard C semantics where argc counts only the active arguments and argv[argc] is NULL, Dark-Agent's loader includes the trailing NULL terminator itself in the argc count. For example, running **bof_exec hello one two three** results in the following layout:
+```plaintext
+argv:
+  [0] -> "one"
+  [1] -> "two"
+  [2] -> "three"
+  [3] -> NULL
+
+argc = 4
+```
 
 ## A Real Example: The SSH Keys Finder
 A **hello world** proves the **pipeline**, but a **real tool** shows the **pattern** in practice. The **SSH Keys Finder** scans **common locations** for **SSH private keys** and reports each key's **path**, **type**, **passphrase status**, and **size**. It is a **finder**, not an **extractor**, so it never reads **key contents** out of the process.
