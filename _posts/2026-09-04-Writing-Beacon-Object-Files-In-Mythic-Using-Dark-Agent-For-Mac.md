@@ -3,6 +3,7 @@ title: "Writing Beacon Object Files In Mythic Using Dark Agent For MacOS"
 date: 2026-09-04
 categories: [Red Team, Command and Control, Post-Exploitation, Defense Evasion, Mythic, Dark Agent, Beacon Object Files, BOFs, MacOS]
 tags: [Mythic, Dark Agent, MacOS, Beacon Object Files, BOFs, Post-Exploitation, Defense Evasion, OpSec]
+published: false
 ---
 
 ## Acknowledgements and Resources
